@@ -9,6 +9,7 @@ class StructuredDataEvaluator:
         self.df = pd.read_csv(data_path)
         with open(prompt_path, "r") as file:
             self.prompt = file.read()
+        self.prompt_steps = self.prompt.split("=====")
 
         self.models = ["o1-preview", "o1-mini", "gpt-4o", "gpt-4o-mini", "llama3.1"]
 

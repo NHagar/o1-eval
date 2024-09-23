@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 import ollama
@@ -70,3 +71,83 @@ def multi_turn(
         history.extend(resp)
 
     return history
+
+
+def chain_of_thought(user_prompt: str, model: str) -> List:
+    cot_prompt = """You are an AI assistant that uses a Chain of Thought (CoT) approach with reflection to answer queries. Follow these steps:
+
+            1. Think through the problem step by step within the <thinking> tags.
+            2. Reflect on your thinking to check for any errors or improvements within the <reflection> tags.
+            3. Make any necessary adjustments based on your reflection.
+            4. Provide your final, concise answer within the <output> tags.
+
+            Important: The <thinking> and <reflection> sections are for your internal reasoning process only.
+            Do not include any part of the final answer in these sections.
+            The actual response to the query must be entirely contained within the <output> tags.
+
+            Use the following format for your response:
+            <thinking>
+            [Your step-by-step reasoning goes here. This is your internal thought process, not the final answer.]
+            <reflection>
+            [Your reflection on your reasoning, checking for errors or improvements]
+            </reflection>
+            [Any adjustments to your thinking based on your reflection]
+            </thinking>
+            <output>
+            [Your final, concise answer to the query. This is the only part that will be shown to the user.]
+            </output>
+            """
+
+    resp = single_turn(user_prompt, model, system_prompt=cot_prompt)
+
+    return resp
+
+
+def reasoning_chain(user_prompt: str, model: str):
+    history = [
+        {
+            "role": "system",
+            "content": """You are an expert AI assistant that explains your reasoning step by step. For each step, provide a title that describes what you're doing in that step, along with the content. Decide if you need another step or if you're ready to give the final answer. Respond in JSON format with 'title', 'content', and 'next_action' (either 'continue' or 'final_answer') keys. USE AS MANY REASONING STEPS AS POSSIBLE. AT LEAST 3. BE AWARE OF YOUR LIMITATIONS AS AN LLM AND WHAT YOU CAN AND CANNOT DO. IN YOUR REASONING, INCLUDE EXPLORATION OF ALTERNATIVE ANSWERS. CONSIDER YOU MAY BE WRONG, AND IF YOU ARE WRONG IN YOUR REASONING, WHERE IT WOULD BE. FULLY TEST ALL OTHER POSSIBILITIES. YOU CAN BE WRONG. WHEN YOU SAY YOU ARE RE-EXAMINING, ACTUALLY RE-EXAMINE, AND USE ANOTHER APPROACH TO DO SO. DO NOT JUST SAY YOU ARE RE-EXAMINING. USE AT LEAST 3 METHODS TO DERIVE THE ANSWER. USE BEST PRACTICES.
+
+    Example of a valid JSON response:
+    ```json
+    {
+        "title": "Identifying Key Information",
+        "content": "To begin solving this problem, we need to carefully examine the given information and identify the crucial elements that will guide our solution process. This involves...",
+        "next_action": "continue"
+    }```
+    """,
+        },
+        {"role": "user", "content": user_prompt},
+        {
+            "role": "assistant",
+            "content": "Thank you! I will now think step by step following my instructions, starting at the beginning after decomposing the problem.",
+        },
+    ]
+
+    step_count = 1
+
+    while True:
+        if model == "llama3.1":
+            resp = ollama.chat(model=model, messages=history)
+            resp_text = resp["message"]["content"]
+        else:
+            resp = OpenAI().chat.completions.create(model=model, messages=history)
+            resp_text = resp.choices[0].message.content
+
+        step_data = json.loads(resp_text)
+
+        history.append({"role": "assistant", "content": json.dumps(step_data)})
+
+        if step_data["next_action"] == "final_answer" or step_count > 25:
+            break
+
+        step_count += 1
+
+    final_data = single_turn(
+        "Please provide the final answer based on your reasoning above.",
+        model,
+        history=history,
+    )
+
+    return final_data
