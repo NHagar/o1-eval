@@ -4,15 +4,19 @@ from llms import chain_of_thought, multi_turn, reasoning_chain, single_turn
 
 
 def evaluate_model(model, prompt_single, prompts_multi, system_prompt=None):
+    print("Starting single-turn conversation...")
     single = single_turn(prompt_single, model, system_prompt=system_prompt)[-1][
         "content"
     ]
 
     if model not in ["o1-preview", "o1-mini"]:
+        print("Starting multi-turn conversation...")
         multi = multi_turn(prompts_multi, model, system_prompt=system_prompt)[-1][
             "content"
         ]
+        print("Starting chain of thought...")
         cot = chain_of_thought(prompt_single, model)[-1]["content"]
+        print("Starting reasoning chain...")
         reasoning = reasoning_chain(prompt_single, model)[-1]["content"]
     else:
         multi = None

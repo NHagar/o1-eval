@@ -58,3 +58,7 @@ Next, write Python code to analyze the distribution of electric vehicle range fo
 =====
 
 Finally, write Python code to visualize the distribution of electric vehicle range for each electric vehicle type. Your visualization should have a separate histogram for each electric vehicle type, and the histograms should be displayed side by side.
+
+=====
+
+Put all your code together, into a working Python script.

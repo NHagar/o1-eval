@@ -1,11 +1,24 @@
 import json
+from enum import Enum
 from typing import List
 
 import ollama
 from dotenv import load_dotenv
 from openai import OpenAI
+from pydantic import BaseModel
 
 load_dotenv()
+
+
+class NextActionEnum(str, Enum):
+    cont = "continue"
+    final_answer = "final_answer"
+
+
+class ReasoningChainStep(BaseModel):
+    title: str
+    content: str
+    next_action: NextActionEnum
 
 
 def single_turn(
@@ -132,7 +145,11 @@ def reasoning_chain(user_prompt: str, model: str):
             resp = ollama.chat(model=model, messages=history)
             resp_text = resp["message"]["content"]
         else:
-            resp = OpenAI().chat.completions.create(model=model, messages=history)
+            llm = OpenAI()
+            resp = llm.beta.chat.completions.parse(
+                model=model, messages=history, response_format=ReasoningChainStep
+            )
+
             resp_text = resp.choices[0].message.content
 
         step_data = json.loads(resp_text)
