@@ -1,0 +1,48 @@
+You have access to the table described below. Using the available data, your goal is to produce a figure that shows the distribution of electric vehicle range (in miles) for each electric vehicle type. The figure should have a separate histogram for each electric vehicle type, and the histograms should be displayed side by side.
+
+Your response should include a Python script that generates the figure and a brief description of the figure.
+
+
+DATA INFORMATION:
+Table: ./data/evs.csv
+Table head:
+,VIN (1-10),County,City,State,Postal Code,Model Year,Make,Model,Electric Vehicle Type,Clean Alternative Fuel Vehicle (CAFV) Eligibility,Electric Range,Base MSRP,Legislative District,DOL Vehicle ID,Vehicle Location,Electric Utility,2020 Census Tract
+0,JTMAB3FV3P,Kitsap,Seabeck,WA,98380.0,2023,TOYOTA,RAV4 PRIME,Plug-in Hybrid Electric Vehicle (PHEV),Clean Alternative Fuel Vehicle Eligible,42.0,0.0,35.0,240684006,POINT (-122.8728334 47.5798304),PUGET SOUND ENERGY INC,53035091301.0
+1,1N4AZ1CP6J,Kitsap,Bremerton,WA,98312.0,2018,NISSAN,LEAF,Battery Electric Vehicle (BEV),Clean Alternative Fuel Vehicle Eligible,151.0,0.0,35.0,474183811,POINT (-122.6961203 47.5759584),PUGET SOUND ENERGY INC,53035080700.0
+2,5YJ3E1EA4L,King,Seattle,WA,98101.0,2020,TESLA,MODEL 3,Battery Electric Vehicle (BEV),Clean Alternative Fuel Vehicle Eligible,266.0,0.0,43.0,113120017,POINT (-122.3340795 47.6099315),CITY OF SEATTLE - (WA)|CITY OF TACOMA - (WA),53033007302.0
+3,1N4AZ0CP8E,King,Seattle,WA,98125.0,2014,NISSAN,LEAF,Battery Electric Vehicle (BEV),Clean Alternative Fuel Vehicle Eligible,84.0,0.0,46.0,108188713,POINT (-122.304356 47.715668),CITY OF SEATTLE - (WA)|CITY OF TACOMA - (WA),53033000700.0
+4,1G1FX6S00H,Thurston,Yelm,WA,98597.0,2017,CHEVROLET,BOLT EV,Battery Electric Vehicle (BEV),Clean Alternative Fuel Vehicle Eligible,238.0,0.0,20.0,176448940,POINT (-122.5715761 46.9095798),PUGET SOUND ENERGY INC,53067012510.0
+
+Table shape:
+Rows: 205439, Columns: 17
+
+Table description:
+,Postal Code,Model Year,Electric Range,Base MSRP,Legislative District,DOL Vehicle ID,2020 Census Tract
+count,205436.0,205439.0,205431.0,205431.0,204997.0,205439.0,205436.0
+mean,98177.97186958468,2020.9603629301155,52.164342285244196,922.6705317113775,28.97084835387835,227715617.0093361,52977042062.886055
+std,2419.037479271428,2.9890588585114686,88.07585935222741,7761.753602089744,14.910051778604853,72057371.70901932,1588435453.3102217
+min,1731.0,1997.0,0.0,0.0,1.0,4469.0,1001020100.0
+25%,98052.0,2019.0,0.0,0.0,17.0,193532440.0,53033009802.0
+50%,98125.0,2022.0,0.0,0.0,33.0,238236841.0,53033030003.0
+75%,98372.0,2023.0,48.0,0.0,42.0,261871774.0,53053073123.0
+max,99577.0,2025.0,337.0,845000.0,49.0,479254772.0,56021001100.0
+
+Table data types:
+,0
+VIN (1-10),object
+County,object
+City,object
+State,object
+Postal Code,float64
+Model Year,int64
+Make,object
+Model,object
+Electric Vehicle Type,object
+Clean Alternative Fuel Vehicle (CAFV) Eligibility,object
+Electric Range,float64
+Base MSRP,float64
+Legislative District,float64
+DOL Vehicle ID,int64
+Vehicle Location,object
+Electric Utility,object
+2020 Census Tract,float64

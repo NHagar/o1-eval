@@ -1,22 +1,29 @@
 import pandas as pd
 
 
-class StructuredDataEvaluator:
-    def __init__(self, data_path, prompt_path):
-        self.data_path = data_path
-        self.prompt_path = prompt_path
+def describe_input_data(csv):
+    df = pd.read_csv(csv)
+    data_head = df.head()
+    data_head = data_head.to_csv()
 
-        self.df = pd.read_csv(data_path)
-        with open(prompt_path, "r") as file:
-            self.prompt = file.read()
-        self.prompt_steps = self.prompt.split("=====")
+    data_shape = df.shape
+    data_shape = f"Rows: {data_shape[0]}, Columns: {data_shape[1]}"
 
-        self.models = ["o1-preview", "o1-mini", "gpt-4o", "gpt-4o-mini", "llama3.1"]
+    data_description = df.describe()
+    data_description = data_description.to_csv()
 
-    def summarize_data(self):
-        summary = self.df.describe()
-        df_head = self.df.head()
-        df_shape = self.df.shape
-        df_dtypes = self.df.dtypes
+    data_dtypes = df.dtypes
+    data_dtypes = data_dtypes.to_csv()
 
-        return summary, df_head, df_shape, df_dtypes
+    output = "DATA INFORMATION:\n"
+    output += f"Table: {csv}\n"
+    output += f"Table head:\n{data_head}\n"
+    output += f"Table shape:\n{data_shape}\n"
+    output += f"Table description:\n{data_description}\n"
+    output += f"Table data types:\n{data_dtypes}\n"
+    output += "\n"
+
+    return output
+
+
+print(describe_input_data("./data/evs.csv"))
