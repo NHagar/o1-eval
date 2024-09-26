@@ -27,35 +27,41 @@ def evaluate_model(model, prompt_single, prompts_multi, system_prompt=None):
 
 
 if __name__ == "__main__":
-    prompts = Path("./src/prompts/evs")
+    prompt_paths = [
+        Path("./src/prompts/evs"),
+        Path("./src/prompts/crashes"),
+        Path("./src/prompts/fruit"),
+        # Path("./src/prompts/ab"),
+    ]
 
-    with open(prompts / "single.txt", "r") as f:
-        prompt_single = f.read()
+    for prompts in prompt_paths:
+        with open(prompts / "single.txt", "r") as f:
+            prompt_single = f.read()
 
-    with open(prompts / "multi.txt", "r") as f:
-        prompts_multi = f.read().split("=====")
+        with open(prompts / "multi.txt", "r") as f:
+            prompts_multi = f.read().split("=====")
 
-    with open(prompts / "system.txt", "r") as f:
-        prompt_system = f.read()
+        with open(prompts / "system.txt", "r") as f:
+            prompt_system = f.read()
 
-    models = ["gpt-4o-mini", "gpt-4o"]
+        models = ["gpt-4o-mini", "gpt-4o"]
 
-    for model in models:
-        single, multi, cot, reasoning = evaluate_model(
-            model, prompt_single, prompts_multi, prompt_system
-        )
+        for model in models:
+            single, multi, cot, reasoning = evaluate_model(
+                model, prompt_single, prompts_multi, prompt_system
+            )
 
-        output_subdir = prompts / "output" / model
-        output_subdir.mkdir(exist_ok=True)
+            output_subdir = prompts / "output" / model
+            output_subdir.mkdir(exist_ok=True)
 
-        with open(output_subdir / "single_results.txt", "w") as f:
-            f.write(single)
+            with open(output_subdir / "single_results.txt", "w") as f:
+                f.write(single)
 
-        with open(output_subdir / "multi_results.txt", "w") as f:
-            f.write(multi)
+            with open(output_subdir / "multi_results.txt", "w") as f:
+                f.write(multi)
 
-        with open(output_subdir / "cot_results.txt", "w") as f:
-            f.write(cot)
+            with open(output_subdir / "cot_results.txt", "w") as f:
+                f.write(cot)
 
-        with open(output_subdir / "reasoning_results.txt", "w") as f:
-            f.write(reasoning)
+            with open(output_subdir / "reasoning_results.txt", "w") as f:
+                f.write(reasoning)
