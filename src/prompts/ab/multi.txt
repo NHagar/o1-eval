@@ -1,0 +1,17 @@
+You are selecting a headline for a news article. You want to make sure that the headline is engaging and informative, and that it accurately represents the content of the article. You also want to make sure that the headline is attention-grabbing and will entice readers to click on the article.
+
+First, consider the strengths and weaknesses of each headline option.
+
+
+=====
+
+Based on your evaluation, rank the headlines by their likelihood to get readers to click on the article. Explain your ranking.
+
+=====
+
+Finally, select the headline that you think is the best option for the article.
+
+Format your response as follows:
+
+Headline: [Selected Headline]
+Explanation: [Your explanation for why you chose this headline]
