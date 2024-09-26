@@ -1,0 +1,88 @@
+Here is a complete working Python script that includes loading, cleaning, analyzing, and visualizing the distribution of electric vehicle ranges for each electric vehicle type.
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 1: Load the data
+file_path = './data/evs.csv'
+df = pd.read_csv(file_path)
+
+# Step 2: Inspect the data
+print("DataFrame Head:")
+print(df.head())
+print("\nData Types:")
+print(df.dtypes)
+print("\nNon-null counts:")
+print(df.count())
+print("\nSummary Statistics:")
+print(df.describe())
+
+# Step 3: Check for missing values
+missing_values = df.isnull().sum()
+print("\nMissing Values:")
+print(missing_values[missing_values > 0])
+
+# Step 4: Clean the Data
+# Drop rows where 'Electric Range' or 'Electric Vehicle Type' are NaN
+df_cleaned = df.dropna(subset=['Electric Range', 'Electric Vehicle Type'])
+
+# Ensure 'Electric Range' is of numeric type
+df_cleaned['Electric Range'] = pd.to_numeric(df_cleaned['Electric Range'], errors='coerce')
+
+# Drop rows that failed to convert
+df_cleaned = df_cleaned.dropna(subset=['Electric Range'])
+
+print("\nCleaned DataFrame Shape:", df_cleaned.shape)
+print("\nCleaned DataFrame Head:")
+print(df_cleaned.head())
+
+# Step 5: Analyze the distribution of electric vehicle range
+# Group by Electric Vehicle Type and calculate summary statistics
+summary_stats = df_cleaned.groupby('Electric Vehicle Type')['Electric Range'].describe()
+print("\nSummary Statistics of Electric Range by Vehicle Type:")
+print(summary_stats)
+
+# Step 6: Visualize the distribution of Electric Range for each Electric Vehicle Type
+plt.figure(figsize=(14, 8))
+
+# Get unique electric vehicle types
+electric_vehicle_types = df_cleaned['Electric Vehicle Type'].unique()
+
+# Create a histogram for each electric vehicle type
+for i, ev_type in enumerate(electric_vehicle_types):
+    plt.subplot(2, (len(electric_vehicle_types) + 1) // 2, i + 1)  # Subplots in 2 rows
+    sns.histplot(df_cleaned[df_cleaned['Electric Vehicle Type'] == ev_type]['Electric Range'],
+                 bins=20, kde=True)
+    plt.title(ev_type)
+    plt.xlabel('Electric Range (miles)')
+    plt.ylabel('Frequency')
+
+# Adjust layout to prevent overlap
+plt.tight_layout()
+plt.show()
+```
+
+### Explanation of Each Section:
+1. **Import Libraries**: All necessary libraries (`pandas`, `matplotlib.pyplot`, and `seaborn`) are imported at the beginning.
+   
+2. **Load the Data**: The CSV file containing electric vehicle data is read into a DataFrame.
+
+3. **Data Inspection**: The script prints the first few rows of the DataFrame, data types, non-null counts, and summary statistics to understand the data structure.
+
+4. **Missing Value Check**: It checks for missing values to identify potential issues.
+
+5. **Data Cleaning**:
+   - Rows with missing information in critical columns (`Electric Range` and `Electric Vehicle Type`) are dropped.
+   - The `Electric Range` column is converted to a numeric type, with errors treated appropriately.
+   - Any rows that could not be converted are also dropped.
+
+6. **Data Analysis**: Summary statistics are generated for `Electric Range` grouped by `Electric Vehicle Type`.
+
+7. **Data Visualization**: 
+   - A figure is set up for histograms.
+   - For each type of electric vehicle, a histogram is created to visualize the distribution of electric ranges with KDE overlays.
+   - Titles and labels are added, and the layout is adjusted for clarity.
+
+This script combines all tasks into a coherent analysis that can be executed as a stand-alone file. Make sure to have necessary Python libraries installed in your environment to run this script.

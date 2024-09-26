@@ -152,7 +152,14 @@ def reasoning_chain(user_prompt: str, model: str):
 
             resp_text = resp.choices[0].message.content
 
-        step_data = json.loads(resp_text)
+        try:
+            step_data = json.loads(resp_text)
+        except json.JSONDecodeError:
+            step_data = {
+                "title": f"Step {step_count} (JSON DECODING ERROR)",
+                "content": resp_text,
+                "next_action": "final_answer",
+            }
 
         history.append({"role": "assistant", "content": json.dumps(step_data)})
 

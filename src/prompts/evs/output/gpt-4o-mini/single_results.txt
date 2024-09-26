@@ -1,0 +1,32 @@
+To create a figure showing the distribution of electric vehicle ranges for different electric vehicle types using the provided dataset, you can use the following Python script. This script reads the CSV file, groups the data by electric vehicle type, and then generates side-by-side histograms.
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the dataset
+data = pd.read_csv('./data/evs.csv')
+
+# Set up the matplotlib figure
+plt.figure(figsize=(15, 7))
+
+# Use seaborn's histplot for better aesthetics
+sns.histplot(data=data, x='Electric Range', hue='Electric Vehicle Type', multiple='stack', kde=False, 
+             bins=30, stat='density', common_norm=False)
+
+# Adding titles and labels
+plt.title('Distribution of Electric Vehicle Range by Type', fontsize=16)
+plt.xlabel('Electric Range (Miles)', fontsize=14)
+plt.ylabel('Density', fontsize=14)
+plt.xlim(0, data['Electric Range'].max() + 50)  # Adjusting x-axis limits
+plt.legend(title='Electric Vehicle Type', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+```
+
+### Description of the Figure:
+
+This figure displays the distribution of electric vehicle ranges (in miles) categorized by electric vehicle types. Each histogram showcases the density of electric vehicles with different ranges, allowing for easy comparison across the various vehicle types. The use of different colors for each vehicle type makes it straightforward to identify the range distribution for Battery Electric Vehicles (BEVs) and Plug-in Hybrid Electric Vehicles (PHEVs). The x-axis represents the electric range, while the y-axis shows its density, providing insight into how common different ranges are within each vehicle type.

@@ -44,7 +44,13 @@ if __name__ == "__main__":
         with open(prompts / "system.txt", "r") as f:
             prompt_system = f.read()
 
-        models = ["gpt-4o-mini", "gpt-4o"]
+        models = [
+            "gpt-4o-mini",
+            "gpt-4o-2024-08-06",
+            "llama3.1",
+            # "o1-preview",
+            # "o1-mini",
+        ]
 
         for model in models:
             single, multi, cot, reasoning = evaluate_model(
