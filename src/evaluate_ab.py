@@ -35,6 +35,9 @@ ID: {i}
         append_chunk += formatted
     print(append_chunk)
 
+    # TODO: add to prompts
+    # TODO: Update prompts with ID selection
+
 
 #     format variants and add to prompt
 #     run prediction
