@@ -1,0 +1,75 @@
+Below is a complete Python script that loads, cleans, and visualizes the distribution of electric vehicle range for each electric vehicle type. The script uses pandas for data handling and visualization tools like Matplotlib and Seaborn for plotting.
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the data
+file_path = './data/evs.csv'
+ev_data = pd.read_csv(file_path)
+
+# Inspect the data
+print("Data Head:")
+print(ev_data.head())
+print("\nData Info:")
+print(ev_data.info())
+
+# Data Cleaning
+
+# Check for missing values in 'Electric Range'
+missing_range_count = ev_data['Electric Range'].isnull().sum()
+print(f"\nMissing values in 'Electric Range': {missing_range_count}")
+
+# Drop rows with missing Electric Range
+ev_data.dropna(subset=['Electric Range'], inplace=True)
+
+# Check for consistent entries in 'Electric Vehicle Type'
+print("\nElectric Vehicle Type counts:")
+print(ev_data['Electric Vehicle Type'].value_counts())
+
+# Drop duplicates if they exist
+ev_data.drop_duplicates(inplace=True)
+
+# Optionally, save the cleaned data for future use
+cleaned_file_path = './data/cleaned_evs.csv'
+ev_data.to_csv(cleaned_file_path, index=False)
+
+# Analyze the distribution
+ev_range_stats = ev_data.groupby('Electric Vehicle Type')['Electric Range'].describe()
+print("\nElectric Range Statistics by Vehicle Type:")
+print(ev_range_stats)
+
+# Visualize the distribution
+vehicle_types = ev_data['Electric Vehicle Type'].unique()
+num_types = len(vehicle_types)
+
+# Set up the matplotlib figure for histograms
+fig, axes = plt.subplots(1, num_types, figsize=(5 * num_types, 6), sharey=True)
+
+# Plot a histogram for each vehicle type
+for ax, vehicle_type in zip(axes, vehicle_types):
+    subset = ev_data[ev_data['Electric Vehicle Type'] == vehicle_type]
+    sns.histplot(subset['Electric Range'], bins=20, kde=True, ax=ax)
+    ax.set_title(vehicle_type)
+    ax.set_xlabel('Electric Range (miles)')
+    ax.set_ylabel('Frequency')
+
+# Add a main title
+plt.suptitle('Electric Range Distribution by Vehicle Type', y=1.05)
+
+# Adjust layout
+plt.tight_layout()
+
+# Display the plot
+plt.show()
+```
+
+### Explanation:
+- **Data Loading**: Reads the data from the specified CSV file.
+- **Inspection and Cleaning**: Checks for missing data, particularly in the 'Electric Range', and drops any incomplete rows. It also ensures that duplicate entries are removed.
+- **Data Exploration**: Uses groupby on 'Electric Vehicle Type' to compute descriptive statistics, which are then printed.
+- **Visualization**: Sets up subplots to display separate histograms for each vehicle type. The `tight_layout` function makes sure plots are nicely spaced.
+- **Saving Cleaned Data**: Optionally, the cleaned data is saved to a new CSV file.
+
+This script is comprehensive for loading, cleaning, analyzing, and visualizing the distribution of electric vehicle ranges.

@@ -1,0 +1,47 @@
+To visualize the relationship between retail price and cup equivalent price, we can create a scatter plot along with a line of best fit. Below is a Python script that accomplishes this using the `pandas`, `matplotlib`, and `numpy` libraries.
+
+First, ensure you have the required libraries installed. You can install them using the following command:
+
+```bash
+pip install pandas matplotlib numpy
+```
+
+Now, you can use the following script to generate the figure:
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load the data
+data = pd.read_csv('./data/fruit_prices.csv')
+
+# Extract relevant columns
+x = data['RetailPrice']
+y = data['CupEquivalentPrice']
+
+# Create a scatter plot
+plt.figure(figsize=(10, 6))
+plt.scatter(x, y, color='blue', label='Data points')
+
+# Calculate a line of best fit
+m, b = np.polyfit(x, y, 1)  # Linear regression
+plt.plot(x, m*x + b, color='red', label='Line of best fit')
+
+# Add titles and labels
+plt.title('Relationship Between Retail Price and Cup Equivalent Price')
+plt.xlabel('Retail Price ($)')
+plt.ylabel('Cup Equivalent Price ($/cup)')
+plt.legend()
+plt.grid()
+
+# Show the plot
+plt.show()
+```
+
+### Description of the Figure:
+The created figure is a scatter plot that visualizes the relationship between **Retail Price** and **Cup Equivalent Price** for various fruits and their forms. Each blue dot represents a data point where the x-axis indicates the retail price in dollars, while the y-axis indicates the cup equivalent price in dollars per cup.
+
+The red line represents the line of best fit derived from a linear regression analysis of the data, suggesting a relationship between the two variables. If the line slopes upward, it implies a positive correlation, indicating that as the retail price increases, the cup equivalent price also tends to increase, and vice versa. 
+
+Overall, this visualization aids in understanding how retail pricing of fruit products correlates with their pricing in terms of cup equivalents, which could be useful for analysis in pricing strategies or consumer purchasing behavior.

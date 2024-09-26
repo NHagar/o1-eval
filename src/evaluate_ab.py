@@ -16,9 +16,11 @@ with open(prompts_path / "system.txt", "r") as f:
 
 con = duckdb.connect(database=":memory:")
 # load sample of upworthy data
-df = con.execute(
-    "SELECT * FROM 'data/upworthy_processed.csv' USING SAMPLE 10"
-).fetchdf()
+df = con.execute("""WITH sampled_tests AS (
+    SELECT DISTINCT clickability_test_id FROM 'data/upworthy_processed.csv' USING SAMPLE 10
+    )
+    SELECT * FROM 'data/upworthy_processed.csv' WHERE clickability_test_id IN (SELECT clickability_test_id FROM sampled_tests)
+    """).fetchdf()
 # for each test
 test_ids = df["clickability_test_id"].unique()
 for test_id in test_ids:
@@ -26,7 +28,12 @@ for test_id in test_ids:
 
     append_chunk = ""
     for i, row in variants.iterrows():
-        formatted = ""
+        formatted = f"""HEADLINE: {row['text_blob']}
+ID: {i}
+-----
+        """
+        append_chunk += formatted
+    print(append_chunk)
 
 
 #     format variants and add to prompt

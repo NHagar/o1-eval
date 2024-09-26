@@ -1,0 +1,72 @@
+```python
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load the data
+def load_data(file_path):
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except Exception as e:
+        print(f"Error loading data: {e}")
+
+# Clean and preprocess the data
+def clean_data(df):
+    # Drop rows with missing values in Electric Range column
+    df.dropna(subset=['Electric Range'], inplace=True)
+
+    # Filter out non-electric vehicles (battery electric or plug-in hybrid)
+    battery_electric = 'Battery Electric Vehicle (BEV)'
+    plug_in_hybrid = 'Plug-in Hybrid Electric Vehicle (PHEV)'
+    df_battery_electric = df[(df['Electric Vehicle Type'].str.contains(battery_electric)) | 
+                              (df['Electric Vehicle Type'].str.contains(plug_in_hybrid))]
+    
+    # Return cleaned and filtered data
+    return df_battery_electric
+
+# Analyze the distribution of electric vehicle range for each electric vehicle type
+def analyze_distribution(cleaned_df):
+    battery_electric = 'Battery Electric Vehicle (BEV)'
+    plug_in_hybrid = 'Plug-in Hybrid Electric Vehicle (PHEV)'
+
+    # Calculate mean, median, min, max, 25th percentile, and 75th percentile electric range for each type
+    summary_stats_battery_electric = cleaned_df[cleaned_df['Electric Vehicle Type'].str.contains(battery_electric)][['Electric Range']].describe()
+    summary_stats_plug_in_hybrid = cleaned_df[cleaned_df['Electric Vehicle Type'].str.contains(plug_in_hybrid)][['Electric Range']].describe()
+
+    # Print summary statistics
+    print(summary_stats_battery_electric)
+    print(summary_stats_plug_in_hybrid)
+
+    # Create subplots for each electric vehicle type
+    fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+    battery_electric_range = cleaned_df[cleaned_df['Electric Vehicle Type'].str.contains(battery_electric)][['Electric Range']]
+    plug_in_hybrid_range = cleaned_df[cleaned_df['Electric Vehicle Type'].str.contains(plug_in_hybrid)][['Electric Range']]
+
+    axs[0].hist([battery_electric_range], label=['Battery Electric'], alpha=0.7, bins=20)
+    axs[0].set_title('Distribution of Battery Electric Vehicle Range')
+    axs[0].set_xlabel('Electric Range (miles)')
+    axs[0].set_ylabel('Frequency')
+
+    axs[1].hist([plug_in_hybrid_range], label=['Plug-in Hybrid'], alpha=0.7, bins=20)
+    axs[1].set_title('Distribution of Plug-in Hybrid Vehicle Range')
+    axs[1].set_xlabel('Electric Range (miles)')
+    axs[1].set_ylabel('Frequency')
+
+    # Layout so plots do not overlap
+    fig.tight_layout()
+
+    plt.show()
+
+# Load data and clean/preprocess it
+file_path = 'electric_vehicles.csv'  # Replace with your actual CSV file path
+df = load_data(file_path)
+cleaned_df = clean_data(df)
+
+# Analyze the distribution of electric vehicle range for each electric vehicle type
+analyze_distribution(cleaned_df)
+```
+
+Note: Make sure to replace `'electric_vehicles.csv'` with the actual path to your CSV file. This script assumes that the data is in a CSV format, and it uses the `Electric Range` column as the variable to plot histograms for battery electric and plug-in hybrid vehicles.

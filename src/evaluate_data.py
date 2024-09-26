@@ -28,10 +28,9 @@ def evaluate_model(model, prompt_single, prompts_multi, system_prompt=None):
 
 if __name__ == "__main__":
     prompt_paths = [
-        Path("./src/prompts/evs"),
+        # Path("./src/prompts/evs"),
         Path("./src/prompts/crashes"),
         Path("./src/prompts/fruit"),
-        # Path("./src/prompts/ab"),
     ]
 
     for prompts in prompt_paths:
@@ -58,7 +57,7 @@ if __name__ == "__main__":
             )
 
             output_subdir = prompts / "output" / model
-            output_subdir.mkdir(exist_ok=True)
+            output_subdir.mkdir(exist_ok=True, parents=True)
 
             with open(output_subdir / "single_results.txt", "w") as f:
                 f.write(single)

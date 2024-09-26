@@ -1,0 +1,49 @@
+To create a figure that maps the number of collisions in each borough of New York City, we can use Python's Pandas for data manipulation and Geopandas for spatial visualization. Below is a script that accomplishes this task. 
+
+```python
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+# Load the collision data
+collisions_df = pd.read_csv('./data/collisions.csv')
+
+# Count the number of collisions per borough
+borough_collision_counts = collisions_df['BOROUGH'].value_counts().reset_index()
+borough_collision_counts.columns = ['BOROUGH', 'COLLISION_COUNT']
+
+# Load a map of New York City boroughs
+nyc_boroughs = gpd.read_file(gpd.datasets.get_path('nybb'))
+
+# Merge the collision counts with the NYC map
+nyc_boroughs = nyc_boroughs.rename(columns={'BoroName': 'BOROUGH'})
+merged = nyc_boroughs.merge(borough_collision_counts, on='BOROUGH', how='left')
+
+# Fill NaN values with 0 (in case a borough has no recorded collisions)
+merged['COLLISION_COUNT'] = merged['COLLISION_COUNT'].fillna(0)
+
+# Plot the figure
+fig, ax = plt.subplots(1, 1, figsize=(12, 12))
+merged.plot(column='COLLISION_COUNT', ax=ax, legend=True,
+            legend_kwds={'label': "Number of Collisions by Borough",
+                         'orientation': "horizontal"},
+            cmap='OrRd')
+
+# Set axis title and plot title
+ax.set_title('Number of Collisions in New York City Boroughs', fontsize=15)
+ax.set_axis_off()  # Optional to turn off the axis
+
+# Show the plot
+plt.show()
+```
+
+### Description of the Figure
+The generated figure is a map of New York City showing the number of collisions occurring in each borough. Each borough is colored according to the count of collisions, using a sequential color scheme from light (indicating fewer collisions) to dark (indicating more collisions). A legend is included to clearly indicate the number of collisions associated with each color, allowing for easy comparison across different boroughs. The title "Number of Collisions in New York City Boroughs" summarizes the map's focus, providing a visual insight into traffic incidents throughout the city. 
+
+Before running this script, ensure you have the necessary packages installed. You can install any missing packages using pip:
+
+```bash
+pip install pandas geopandas matplotlib
+``` 
+
+This script assumes that the file `collisions.csv` is located in the `./data/` directory and that you have the appropriate GeoPandas dataset for the NYC boroughs available, which is typically included with GeoPandas installations. If you have a different shapefile for NYC boroughs, you can replace the `gpd.read_file(gpd.datasets.get_path('nybb'))` line with the path to your shapefile.

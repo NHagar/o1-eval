@@ -1,0 +1,9 @@
+Here is the final answer:
+
+```
+{
+    "title": "Final Answer",
+    "content": "To visualize how different types of electric vehicles compare in terms of their ranges, we generate separate histograms for each electric vehicle type using Python's matplotlib library.",
+    "next_action": "final_answer"
+}
+```

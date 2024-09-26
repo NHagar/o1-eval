@@ -18,7 +18,7 @@ df = con.execute("""
     multi_variants AS (
     SELECT
         d.clickability_test_id,
-        excerpt || '\n' || headline || '\n' || share_text AS text_blob,
+        COALESCE(excerpt, '') || '\n' || COALESCE(headline, '') || '\n' || COALESCE(share_text, '') AS text_blob,
         first_place
     FROM
         './data/upworthy.csv' d
@@ -39,13 +39,13 @@ df = con.execute("""
         1
     )
     SELECT
-        *
+        m.*
     FROM
-        multi_variants
+        multi_variants m
     JOIN
         unique_text_blob
     ON
-        multi_variants.clickability_test_id = unique_text_blob.clickability_test_id
+        m.clickability_test_id = unique_text_blob.clickability_test_id
     WHERE
         unique_text_blob_count > 1
 """).fetchdf()

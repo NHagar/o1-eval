@@ -1,0 +1,70 @@
+Certainly! Below is a complete Python script that includes steps for loading, cleaning the collision data, counting the number of collisions in each borough, and visualizing the results on a map. Before running this script, ensure you have the necessary libraries installed and adjust file paths as needed.
+
+```python
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+# Step 1: Load the Data
+file_path = './data/collisions.csv'
+data = pd.read_csv(file_path)
+
+# Step 2: Examine the Data
+print("Data Preview:")
+print(data.head())
+
+# Step 3: Check for Missing Values
+print("\nMissing Values:")
+print(data.isnull().sum())
+
+# Step 4: Data Type Verification
+print("\nData Types:")
+print(data.dtypes)
+
+# Step 5: Clean the 'BOROUGH' Column
+# Remove leading/trailing whitespace and convert to uppercase for consistency
+if 'BOROUGH' in data.columns:
+    data['BOROUGH'] = data['BOROUGH'].str.strip().str.upper()
+
+# Step 6: Handle Missing Values
+# Drop rows where 'BOROUGH' is missing as they cannot be analyzed
+data = data.dropna(subset=['BOROUGH'])
+
+# Step 7: Count the Number of Collisions in Each Borough
+borough_collision_counts = data['BOROUGH'].value_counts().reset_index()
+borough_collision_counts.columns = ['BOROUGH', 'NUMBER_OF_COLLISIONS']
+
+# Step 8: Load Borough GeoJSON/Shapefile
+boroughs_geo = gpd.read_file('./data/nyc_boroughs.geojson')  # Adjust this path as necessary
+
+# Step 9: Merge Collision Counts with Borough Geometry
+merged = boroughs_geo.set_index('BoroName').join(borough_collision_counts.set_index('BOROUGH'))
+
+# Step 10: Plotting
+fig, ax = plt.subplots(1, 1, figsize=(10, 8))
+merged.boundary.plot(ax=ax, color='black', linewidth=1)  # Plot the boundaries
+merged.plot(column='NUMBER_OF_COLLISIONS', ax=ax, legend=True,
+            legend_kwds={'label': "Number of Collisions by Borough",
+                         'orientation': "horizontal"},
+            cmap='OrRd', missing_kwds={'color': 'lightgrey'})  # Color categories
+
+# Set title and labels
+plt.title('Number of Collisions in Each Borough in NYC')
+plt.axis('off')  # Hide the axis
+plt.show()
+```
+
+### Instructions for Running the Script:
+1. **File Path Adjustments**: Make sure to adjust the file paths for the collision CSV and the borough shapefile (GeoJSON).
+2. **Install Required Libraries**: Ensure you have pandas, geopandas, and matplotlib installed. You can install them using pip:
+   ```bash
+   pip install pandas geopandas matplotlib
+   ```
+3. **Run the Script**: You can save the above code to a file (e.g., `collision_analysis.py`) and run it using Python:
+   ```bash
+   python collision_analysis.py
+   ```
+
+### Important Note:
+- Ensure that your GeoJSON or shapefile contains the borough geometries and that the attribute names (like `BoroName`) match what’s in the dataset you're using. If the names differ, you may need to adjust the code accordingly.
+- This script consolidates the entire workflow from data loading, cleaning, counting, and visualization into a single executable Python file.

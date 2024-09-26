@@ -1,0 +1,66 @@
+Certainly! Below is a complete Python script that performs data loading, cleaning, aggregation, and visualization. This script assumes you have the necessary files and libraries, as well as a GeoJSON file for the borough boundaries.
+
+```python
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+# --- Data Load and Clean ---
+
+# Load the CSV file into a DataFrame
+file_path = './data/collisions.csv'
+df = pd.read_csv(file_path)
+
+# Remove rows with missing values in the BOROUGH column
+df_cleaned = df.dropna(subset=['BOROUGH'])
+
+# Remove duplicates if necessary
+df_cleaned = df_cleaned.drop_duplicates()
+
+# Ensure borough names are uppercase (could be redundant but ensures uniformity)
+df_cleaned['BOROUGH'] = df_cleaned['BOROUGH'].str.upper()
+
+# --- Data Aggregation ---
+
+# Count the number of collisions per borough
+borough_crash_counts = df_cleaned.groupby('BOROUGH')['COLLISION_ID'].count().reset_index()
+borough_crash_counts.rename(columns={'COLLISION_ID': 'Collision_Count'}, inplace=True)
+
+# --- Visualization ---
+
+# Load a shapefile of the borough boundaries for visualization
+# Ensure the file exists and replace 'boroughs.geojson' with your actual file
+boroughs_geojson = 'boroughs.geojson'
+gdf_boroughs = gpd.read_file(boroughs_geojson)
+
+# Merge the collision counts with the geographical data
+gdf_merged = gdf_boroughs.set_index('boro_name').join(borough_crash_counts.set_index('BOROUGH'), how='left')
+
+# Plot the map
+fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+gdf_merged.plot(column='Collision_Count', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='0.8', legend=True)
+
+# Add a title and labels
+plt.title('Number of Collisions in Each Borough')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+
+# Show the plot
+plt.show()
+```
+
+### Key Points:
+- **Data Files:**
+  - Ensure you have the cleaned dataset (`collisions.csv`) and a GeoJSON file (`boroughs.geojson`) ready.
+  - The GeoJSON file should contain borough boundaries and have a `boro_name` field for matching borough names.
+
+- **Libraries:**
+  - Make sure `pandas`, `geopandas`, and `matplotlib` are installed. You can do that using:
+    ```bash
+    pip install pandas geopandas matplotlib
+    ```
+
+- **Customization:**
+  - You can modify this script to match your file paths and data specifics. For larger datasets, ensure your machine has enough resources since reading and processing large geographical files might be resource-intensive.
+
+This script provides a complete solution for analyzing and visualizing collision data across boroughs. Adjust paths or variable names if necessary to fit your actual data file names and structures.
