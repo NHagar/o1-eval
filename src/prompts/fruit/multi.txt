@@ -1,5 +1,6 @@
+You have access to the table described below. Your task is to analyze the relationship between the retail and cup equivalent prices of fruits.
 
-
+First, list out the steps you will need to take to complete this task.
 
 DATA INFORMATION:
 Table: ./data/fruit_prices.csv
@@ -36,3 +37,19 @@ Yield,float64
 CupEquivalentSize,float64
 CupEquivalentUnit,object
 CupEquivalentPrice,float64
+
+=====
+
+Now, write Python code to load and clean the data.
+
+=====
+
+Next, write Python code to analyze the relationship between the retail and cup equivalent prices of fruits.
+
+=====
+
+Finally, write Python code to visualize the relationship between the retail and cup equivalent prices of fruits.
+
+=====
+
+Put all your code together, into a working Python script.

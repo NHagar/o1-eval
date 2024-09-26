@@ -1,4 +1,10 @@
+You have access to the table described below. Using the available data, your goal is to produce a figure that shows the relationship between retail price and cup equivalent price. The figure should include the following elements:
 
+- A scatter plot of the RetailPrice and CupEquivalentPrice columns.
+- A line of best fit for the data.
+- A title that describes the relationship between the RetailPrice and CupEquivalentPrice columns.
+
+Your response should include a Python script that generates the figure and a brief description of the figure.
 
 
 DATA INFORMATION:
