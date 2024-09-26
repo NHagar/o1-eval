@@ -26,4 +26,4 @@ def describe_input_data(csv):
     return output
 
 
-print(describe_input_data("./data/evs.csv"))
+print(describe_input_data("./data/banklist.csv"))

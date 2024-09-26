@@ -43,14 +43,17 @@ if __name__ == "__main__":
         model, prompt_single, prompts_multi, prompt_system
     )
 
-    with open(prompts / "single_results.txt", "w") as f:
+    output_subdir = prompts / "output"
+    output_subdir.mkdir(exist_ok=True)
+
+    with open(output_subdir / "single_results.txt", "w") as f:
         f.write(single)
 
-    with open(prompts / "multi_results.txt", "w") as f:
+    with open(output_subdir / "multi_results.txt", "w") as f:
         f.write(multi)
 
-    with open(prompts / "cot_results.txt", "w") as f:
+    with open(output_subdir / "cot_results.txt", "w") as f:
         f.write(cot)
 
-    with open(prompts / "reasoning_results.txt", "w") as f:
+    with open(output_subdir / "reasoning_results.txt", "w") as f:
         f.write(reasoning)
