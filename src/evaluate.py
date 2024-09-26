@@ -27,7 +27,6 @@ def evaluate_model(model, prompt_single, prompts_multi, system_prompt=None):
 
 
 if __name__ == "__main__":
-    model = "gpt-4o-mini"
     prompts = Path("./src/prompts/evs")
 
     with open(prompts / "single.txt", "r") as f:
@@ -39,21 +38,24 @@ if __name__ == "__main__":
     with open(prompts / "system.txt", "r") as f:
         prompt_system = f.read()
 
-    single, multi, cot, reasoning = evaluate_model(
-        model, prompt_single, prompts_multi, prompt_system
-    )
+    models = ["gpt-4o-mini", "gpt-4o"]
 
-    output_subdir = prompts / "output"
-    output_subdir.mkdir(exist_ok=True)
+    for model in models:
+        single, multi, cot, reasoning = evaluate_model(
+            model, prompt_single, prompts_multi, prompt_system
+        )
 
-    with open(output_subdir / "single_results.txt", "w") as f:
-        f.write(single)
+        output_subdir = prompts / "output" / model
+        output_subdir.mkdir(exist_ok=True)
 
-    with open(output_subdir / "multi_results.txt", "w") as f:
-        f.write(multi)
+        with open(output_subdir / "single_results.txt", "w") as f:
+            f.write(single)
 
-    with open(output_subdir / "cot_results.txt", "w") as f:
-        f.write(cot)
+        with open(output_subdir / "multi_results.txt", "w") as f:
+            f.write(multi)
 
-    with open(output_subdir / "reasoning_results.txt", "w") as f:
-        f.write(reasoning)
+        with open(output_subdir / "cot_results.txt", "w") as f:
+            f.write(cot)
+
+        with open(output_subdir / "reasoning_results.txt", "w") as f:
+            f.write(reasoning)
