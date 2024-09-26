@@ -1,0 +1,53 @@
+import duckdb
+
+con = duckdb.connect(database=":memory:")
+
+# clickability_test_id - more than 1 record
+# excerpt + headline + share_text
+# text blob - more than 1 unique record
+df = con.execute("""
+    WITH variants AS (
+        SELECT
+            clickability_test_id,
+            COUNT(*) AS variant_count
+        FROM
+            './data/upworthy.csv'
+        GROUP BY
+            1
+    ),
+    multi_variants AS (
+    SELECT
+        d.clickability_test_id,
+        excerpt || '\n' || headline || '\n' || share_text AS text_blob,
+        first_place
+    FROM
+        './data/upworthy.csv' d
+    JOIN
+        variants
+    ON
+        variants.clickability_test_id = d.clickability_test_id
+    WHERE
+        variants.variant_count > 1
+    ),
+    unique_text_blob AS (
+    SELECT
+        clickability_test_id,
+        COUNT(DISTINCT text_blob) AS unique_text_blob_count
+    FROM
+        multi_variants
+    GROUP BY
+        1
+    )
+    SELECT
+        *
+    FROM
+        multi_variants
+    JOIN
+        unique_text_blob
+    ON
+        multi_variants.clickability_test_id = unique_text_blob.clickability_test_id
+    WHERE
+        unique_text_blob_count > 1
+""").fetchdf()
+
+df.to_csv("./data/upworthy_processed.csv", index=False)
