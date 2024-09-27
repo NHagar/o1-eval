@@ -3,6 +3,8 @@ You are selecting a headline for a news article. You want to make sure that the 
 First, consider the strengths and weaknesses of each headline option.
 
 
+HEADLINES:
+
 =====
 
 Based on your evaluation, rank the headlines by their likelihood to get readers to click on the article. Explain your ranking.

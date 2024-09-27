@@ -6,3 +6,6 @@ Format your response as follows:
 
 Headline ID: [Your chosen headline ID]
 Explanation: [Your explanation for why you chose this headline]
+
+
+HEADLINES:

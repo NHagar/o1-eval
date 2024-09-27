@@ -33,9 +33,11 @@ ID: {i}
 -----
         """
         append_chunk += formatted
-    print(append_chunk)
 
-    # TODO: add to prompts
+    prompt_single += append_chunk
+    prompt_multi = prompt_multi.split("=====")
+    prompt_multi[0] += append_chunk
+    prompt_multi = "=====".join(prompt_multi)
 
 
 #     format variants and add to prompt
