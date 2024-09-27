@@ -1,8 +1,8 @@
 You are selecting a headline for a news article. You want to make sure that the headline is engaging and informative, and that it accurately represents the content of the article. You also want to make sure that the headline is attention-grabbing and will entice readers to click on the article.
 
-Which of the following headlines would be the most effective at getting readers to click on the article?
+Which of the following headlines would be the most effective at getting readers to click on the article? Return the ID of the headline you chose.
 
 Format your response as follows:
 
-Headline: [Your chosen headline]
+Headline ID: [Your chosen headline ID]
 Explanation: [Your explanation for why you chose this headline]

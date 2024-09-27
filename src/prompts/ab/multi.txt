@@ -9,9 +9,9 @@ Based on your evaluation, rank the headlines by their likelihood to get readers 
 
 =====
 
-Finally, select the headline that you think is the best option for the article.
+Finally, select the headline that you think is the best option for the article, and return that headline's ID.
 
 Format your response as follows:
 
-Headline: [Selected Headline]
+Headline ID: [Selected Headline ID]
 Explanation: [Your explanation for why you chose this headline]
