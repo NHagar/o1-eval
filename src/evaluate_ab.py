@@ -59,70 +59,82 @@ def process_model_response(response, winning_idx):
     return correct
 
 
-model = "llama3.1"
+models = [
+    # "gpt-4o-mini",
+    # "llama3.1",
+    # "gpt-4o",
+    "o1-mini",
+    # "o1-preview"
+]
 
-for test_id in tqdm(test_ids):
-    variants = df[df["clickability_test_id"] == test_id]
-    # randomly shuffle variants
-    variants = variants.sample(frac=1)
-    variants.reset_index(drop=True, inplace=True)
-    # store index of winning variant
-    winning_idx = variants[variants["first_place"]].index[0]
+for model in models:
+    for test_id in tqdm(test_ids):
+        variants = df[df["clickability_test_id"] == test_id]
+        # randomly shuffle variants
+        variants = variants.sample(frac=1)
+        variants.reset_index(drop=True, inplace=True)
+        # store index of winning variant
+        winning_idx = variants[variants["first_place"]].index[0]
 
-    append_chunk = ""
-    for i, row in variants.iterrows():
-        formatted = f"""ID: {i}
-HEADLINE: {row['text_blob']}
------
-        """
-        append_chunk += formatted
+        append_chunk = ""
+        for i, row in variants.iterrows():
+            formatted = f"""ID: {i}
+    HEADLINE: {row['text_blob']}
+    -----
+            """
+            append_chunk += formatted
 
-    prompt_single += append_chunk
+        prompt_single += append_chunk
 
-    prompt_multi_copy = prompt_multi
-    prompt_multi_copy = prompt_multi_copy.split("=====")
-    prompt_multi_copy[0] += append_chunk
+        prompt_multi_copy = prompt_multi
+        prompt_multi_copy = prompt_multi_copy.split("=====")
+        prompt_multi_copy[0] += append_chunk
 
-    # # run prediction
-    single, multi, cot, reasoning = evaluate_model(
-        model, prompt_single, prompt_multi_copy, prompt_system
+        # run prediction
+        if model in ["o1-mini", "o1-preview"]:
+            prompt_system = None
+
+        single, multi, cot, reasoning = evaluate_model(
+            model, prompt_single, prompt_multi_copy, prompt_system
+        )
+
+        results_single.append(
+            {
+                "is_correct": process_model_response(single, winning_idx),
+                "response": single,
+                "winner": winning_idx,
+            }
+        )
+
+        if model not in ["o1-mini", "o1-preview"]:
+            results_multi.append(
+                {
+                    "is_correct": process_model_response(multi, winning_idx),
+                    "response": multi,
+                    "winner": winning_idx,
+                }
+            )
+            results_cot.append(
+                {
+                    "is_correct": process_model_response(cot, winning_idx),
+                    "response": cot,
+                    "winner": winning_idx,
+                }
+            )
+            results_reasoning.append(
+                {
+                    "correct": process_model_response(reasoning, winning_idx),
+                    "response": reasoning,
+                    "winner": winning_idx,
+                }
+            )
+
+    output_path = prompts_path / "output" / model
+    output_path.mkdir(exist_ok=True, parents=True)
+
+    pd.DataFrame(results_single).to_csv(output_path / "single_results.csv", index=False)
+    pd.DataFrame(results_multi).to_csv(output_path / "multi_results.csv", index=False)
+    pd.DataFrame(results_cot).to_csv(output_path / "cot_results.csv", index=False)
+    pd.DataFrame(results_reasoning).to_csv(
+        output_path / "reasoning_results.csv", index=False
     )
-
-    results_single.append(
-        {
-            "is_correct": process_model_response(single, winning_idx),
-            "response": single,
-            "winner": winning_idx,
-        }
-    )
-    results_multi.append(
-        {
-            "is_correct": process_model_response(multi, winning_idx),
-            "response": multi,
-            "winner": winning_idx,
-        }
-    )
-    results_cot.append(
-        {
-            "is_correct": process_model_response(cot, winning_idx),
-            "response": cot,
-            "winner": winning_idx,
-        }
-    )
-    results_reasoning.append(
-        {
-            "correct": process_model_response(reasoning, winning_idx),
-            "response": reasoning,
-            "winner": winning_idx,
-        }
-    )
-
-output_path = prompts_path / "output" / model
-output_path.mkdir(exist_ok=True, parents=True)
-
-pd.DataFrame(results_single).to_csv(output_path / "single_results.csv", index=False)
-pd.DataFrame(results_multi).to_csv(output_path / "multi_results.csv", index=False)
-pd.DataFrame(results_cot).to_csv(output_path / "cot_results.csv", index=False)
-pd.DataFrame(results_reasoning).to_csv(
-    output_path / "reasoning_results.csv", index=False
-)

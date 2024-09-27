@@ -9,7 +9,8 @@ df = con.execute("""
     WITH variants AS (
         SELECT
             clickability_test_id,
-            COUNT(*) AS variant_count
+            COUNT(*) AS variant_count,
+            SUM(CAST(first_place AS INTEGER)) AS first_place_count
         FROM
             './data/upworthy.csv'
         GROUP BY
@@ -28,6 +29,7 @@ df = con.execute("""
         variants.clickability_test_id = d.clickability_test_id
     WHERE
         variants.variant_count > 1
+        AND variants.first_place_count = 1
     ),
     unique_text_blob AS (
     SELECT
@@ -51,3 +53,6 @@ df = con.execute("""
 """).fetchdf()
 
 df.to_csv("./data/upworthy_processed.csv", index=False)
+
+print(len(df))
+print(df.clickability_test_id.nunique())
