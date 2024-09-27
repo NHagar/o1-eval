@@ -1,6 +1,9 @@
 from pathlib import Path
 
 import duckdb
+from tqdm import tqdm
+
+from evaluate_data import evaluate_model
 
 # load prompts
 prompts_path = Path("./src/prompts/ab")
@@ -23,22 +26,45 @@ df = con.execute("""WITH sampled_tests AS (
     """).fetchdf()
 # for each test
 test_ids = df["clickability_test_id"].unique()
-for test_id in test_ids:
+
+results_single = []
+results_multi = []
+results_cot = []
+results_reasoning = []
+
+for test_id in tqdm(test_ids):
     variants = df[df["clickability_test_id"] == test_id].reset_index(drop=True)
 
     append_chunk = ""
     for i, row in variants.iterrows():
-        formatted = f"""HEADLINE: {row['text_blob']}
-ID: {i}
+        formatted = f"""ID: {i}
+HEADLINE: {row['text_blob']}
 -----
         """
         append_chunk += formatted
 
     prompt_single += append_chunk
-    prompt_multi = prompt_multi.split("=====")
-    prompt_multi[0] += append_chunk
-    prompt_multi = "=====".join(prompt_multi)
 
+    prompt_multi_copy = prompt_multi
+    prompt_multi_copy = prompt_multi_copy.split("=====")
+    prompt_multi_copy[0] += append_chunk
+
+    # # run prediction
+    model = "gpt-4o-mini"
+    single, multi, cot, reasoning = evaluate_model(
+        model, prompt_single, prompt_multi_copy, prompt_system
+    )
+
+    results_single.append(single)
+    results_multi.append(multi)
+    results_cot.append(cot)
+    results_reasoning.append(reasoning)
+
+
+print(results_single)
+print(results_multi)
+print(results_cot)
+print(results_reasoning)
 
 #     format variants and add to prompt
 #     run prediction
