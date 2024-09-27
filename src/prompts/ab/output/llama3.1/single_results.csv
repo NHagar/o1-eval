@@ -1,0 +1,7 @@
+is_correct,response,winner
+True,"Headline ID: 2
+Explanation: I chose this headline because it implies that there is something surprising and perhaps even secret about Denmark's data, which will likely pique the reader's curiosity. The phrase ""we'd all move to Copenhagen"" suggests a benefit or advantage that readers would want for themselves, making it a tantalizing reason to click on the article to learn more.",2
+False,"I don't see the rest of the headlines in the provided options. However, based on what's available, I'll make a decision:
+
+Headline ID: 2
+Explanation: This headline stands out because it piques curiosity and makes a bold claim (""Denmark probably doesn’t want us to see this data...""). The use of ""probably"" adds intrigue, implying that there might be some sensitive information being kept from the public. This could entice readers to click on the article to find out what's so compelling about Denmark's data that it needs to be hidden.",3

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import duckdb
+import pandas as pd
 from tqdm import tqdm
 
 from evaluate_data import evaluate_model
@@ -20,7 +21,7 @@ with open(prompts_path / "system.txt", "r") as f:
 con = duckdb.connect(database=":memory:")
 # load sample of upworthy data
 df = con.execute("""WITH sampled_tests AS (
-    SELECT DISTINCT clickability_test_id FROM 'data/upworthy_processed.csv' USING SAMPLE 10
+    SELECT DISTINCT clickability_test_id FROM 'data/upworthy_processed.csv' USING SAMPLE 2
     )
     SELECT * FROM 'data/upworthy_processed.csv' WHERE clickability_test_id IN (SELECT clickability_test_id FROM sampled_tests)
     """).fetchdf()
@@ -32,8 +33,41 @@ results_multi = []
 results_cot = []
 results_reasoning = []
 
+
+def process_model_response(response, winning_idx):
+    if isinstance(response, dict):
+        if "Headline ID" in response:
+            resp_id = int(response["Headline ID"])
+        elif "content" in response:
+            try:
+                resp_id = int(response["content"].split("ID: ")[1].split("\n")[0])
+            except (IndexError, ValueError):
+                return None
+        else:
+            return None
+    else:
+        try:
+            resp_id = int(response.split("ID: ")[1].split("\n")[0])
+        except (IndexError, ValueError):
+            return None
+
+    if resp_id == winning_idx:
+        correct = True
+    else:
+        correct = False
+
+    return correct
+
+
+model = "llama3.1"
+
 for test_id in tqdm(test_ids):
-    variants = df[df["clickability_test_id"] == test_id].reset_index(drop=True)
+    variants = df[df["clickability_test_id"] == test_id]
+    # randomly shuffle variants
+    variants = variants.sample(frac=1)
+    variants.reset_index(drop=True, inplace=True)
+    # store index of winning variant
+    winning_idx = variants[variants["first_place"]].index[0]
 
     append_chunk = ""
     for i, row in variants.iterrows():
@@ -50,23 +84,45 @@ HEADLINE: {row['text_blob']}
     prompt_multi_copy[0] += append_chunk
 
     # # run prediction
-    model = "gpt-4o-mini"
     single, multi, cot, reasoning = evaluate_model(
         model, prompt_single, prompt_multi_copy, prompt_system
     )
 
-    results_single.append(single)
-    results_multi.append(multi)
-    results_cot.append(cot)
-    results_reasoning.append(reasoning)
+    results_single.append(
+        {
+            "is_correct": process_model_response(single, winning_idx),
+            "response": single,
+            "winner": winning_idx,
+        }
+    )
+    results_multi.append(
+        {
+            "is_correct": process_model_response(multi, winning_idx),
+            "response": multi,
+            "winner": winning_idx,
+        }
+    )
+    results_cot.append(
+        {
+            "is_correct": process_model_response(cot, winning_idx),
+            "response": cot,
+            "winner": winning_idx,
+        }
+    )
+    results_reasoning.append(
+        {
+            "correct": process_model_response(reasoning, winning_idx),
+            "response": reasoning,
+            "winner": winning_idx,
+        }
+    )
 
+output_path = prompts_path / "output" / model
+output_path.mkdir(exist_ok=True, parents=True)
 
-print(results_single)
-print(results_multi)
-print(results_cot)
-print(results_reasoning)
-
-#     format variants and add to prompt
-#     run prediction
-#     check if prediction is correct
-#     persist correctness
+pd.DataFrame(results_single).to_csv(output_path / "single_results.csv", index=False)
+pd.DataFrame(results_multi).to_csv(output_path / "multi_results.csv", index=False)
+pd.DataFrame(results_cot).to_csv(output_path / "cot_results.csv", index=False)
+pd.DataFrame(results_reasoning).to_csv(
+    output_path / "reasoning_results.csv", index=False
+)

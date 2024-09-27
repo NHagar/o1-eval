@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from llms import chain_of_thought, multi_turn, reasoning_chain, single_turn
@@ -18,12 +19,20 @@ def evaluate_model(model, prompt_single, prompts_multi, system_prompt=None):
         cot = chain_of_thought(prompt_single, model)[-1]["content"]
         print("Starting reasoning chain...")
         reasoning = reasoning_chain(prompt_single, model)[-1]["content"]
+        try:
+            reasoning_out = json.loads(reasoning)
+        except json.JSONDecodeError:
+            reasoning_out = {
+                "title": "Final Answer (JSON DECODING ERROR)",
+                "content": reasoning,
+            }
+
     else:
         multi = None
         cot = None
-        reasoning = None
+        reasoning_out = None
 
-    return single, multi, cot, reasoning
+    return single, multi, cot, reasoning_out
 
 
 if __name__ == "__main__":
