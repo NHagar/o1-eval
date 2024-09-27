@@ -28,7 +28,7 @@ def evaluate_model(model, prompt_single, prompts_multi, system_prompt=None):
 
 if __name__ == "__main__":
     prompt_paths = [
-        # Path("./src/prompts/evs"),
+        Path("./src/prompts/evs"),
         Path("./src/prompts/crashes"),
         Path("./src/prompts/fruit"),
     ]
@@ -47,11 +47,14 @@ if __name__ == "__main__":
             "gpt-4o-mini",
             "gpt-4o-2024-08-06",
             "llama3.1",
-            # "o1-preview",
-            # "o1-mini",
+            "o1-preview",
+            "o1-mini",
         ]
 
         for model in models:
+            if model in ["o1-preview", "o1-mini"]:
+                prompt_system = None
+
             single, multi, cot, reasoning = evaluate_model(
                 model, prompt_single, prompts_multi, prompt_system
             )
@@ -62,11 +65,12 @@ if __name__ == "__main__":
             with open(output_subdir / "single_results.txt", "w") as f:
                 f.write(single)
 
-            with open(output_subdir / "multi_results.txt", "w") as f:
-                f.write(multi)
+            if model not in ["o1-preview", "o1-mini"]:
+                with open(output_subdir / "multi_results.txt", "w") as f:
+                    f.write(multi)
 
-            with open(output_subdir / "cot_results.txt", "w") as f:
-                f.write(cot)
+                with open(output_subdir / "cot_results.txt", "w") as f:
+                    f.write(cot)
 
-            with open(output_subdir / "reasoning_results.txt", "w") as f:
-                f.write(reasoning)
+                with open(output_subdir / "reasoning_results.txt", "w") as f:
+                    f.write(reasoning)

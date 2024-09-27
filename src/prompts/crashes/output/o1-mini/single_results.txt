@@ -1,0 +1,101 @@
+Below is a Python script that reads the collision data, aggregates the number of collisions per borough, and generates a choropleth map of New York City with each borough colored according to the number of collisions.
+
+**Figure Description:**
+The generated map displays the five boroughs of New York City—Manhattan, Brooklyn, Queens, The Bronx, and Staten Island—each shaded with a color intensity corresponding to the total number of traffic collisions that occurred within them. Darker shades represent a higher number of collisions, providing a clear visual representation of collision hotspots across the city.
+
+**Python Script:**
+
+```python
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import requests
+import io
+
+# Step 1: Load collision data
+collision_data = pd.read_csv('./data/collisions.csv', usecols=['BOROUGH'])
+
+# Remove entries with missing or unknown boroughs
+collision_data = collision_data[collision_data['BOROUGH'].notna()]
+collision_data = collision_data[collision_data['BOROUGH'] != 'UNKNOWN']
+
+# Step 2: Aggregate number of collisions per borough
+collision_counts = collision_data['BOROUGH'].value_counts().reset_index()
+collision_counts.columns = ['Borough', 'Collision_Count']
+
+# Step 3: Load NYC borough boundaries using GeoJSON
+# NYC borough boundaries GeoJSON URL
+geojson_url = "https://raw.githubusercontent.com/dwillis/nyc-maps/master/boroughs.geojson"
+
+# Fetch the GeoJSON data
+geojson_response = requests.get(geojson_url)
+if geojson_response.status_code != 200:
+    raise ValueError("Could not retrieve GeoJSON data for NYC boroughs.")
+
+boroughs_geo = gpd.read_file(io.StringIO(geojson_response.text))
+
+# Ensure the borough names match between datasets
+boroughs_geo['BoroName'] = boroughs_geo['BoroName'].str.upper()
+collision_counts['Borough'] = collision_counts['Borough'].str.upper()
+
+# Step 4: Merge collision counts with geographical data
+merged_data = boroughs_geo.merge(collision_counts, left_on='BoroName', right_on='Borough')
+
+# Step 5: Plot the choropleth map
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+merged_data.plot(column='Collision_Count',
+                ax=ax,
+                legend=True,
+                cmap='OrRd',
+                edgecolor='black',
+                linewidth=0.8,
+                legend_kwds={'label': "Number of Collisions",
+                             'orientation': "horizontal"})
+
+
+# Add titles and labels
+ax.set_title('Number of Traffic Collisions per Borough in New York City', fontsize=16)
+ax.axis('off')
+
+# Annotate borough names
+for idx, row in merged_data.iterrows():
+    plt.annotate(s=row['BoroName'], xy=(row['geometry'].centroid.x, row['geometry'].centroid.y),
+                 horizontalalignment='center', fontsize=12, fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+```
+
+**Explanation of the Script:**
+
+1. **Data Loading and Cleaning:**
+   - The script begins by reading the `collisions.csv` file, specifically focusing on the `BOROUGH` column.
+   - It removes any entries where the borough information is missing or marked as 'UNKNOWN' to ensure accurate aggregation.
+
+2. **Aggregation:**
+   - It calculates the total number of collisions for each borough using `value_counts()`.
+
+3. **Geographical Data Acquisition:**
+   - The script fetches the GeoJSON data for NYC borough boundaries from a public GitHub repository.
+   - It reads this data into a GeoDataFrame using `geopandas`.
+
+4. **Data Merging:**
+   - It merges the collision counts with the geographical data based on the borough names, ensuring that the naming conventions match by converting them to uppercase.
+
+5. **Visualization:**
+   - Using `matplotlib` and `geopandas`, it creates a choropleth map where each borough is colored based on the number of collisions.
+   - The map includes a legend, titles, and annotated borough names for clarity.
+
+6. **Display:**
+   - Finally, the script renders the map, allowing for visual analysis of collision distributions across New York City's boroughs.
+
+**Dependencies:**
+Make sure to install the necessary Python libraries before running the script:
+
+```bash
+pip install pandas geopandas matplotlib requests
+```
+
+**Notes:**
+- The GeoJSON URL used in the script sources borough boundaries from a reliable GitHub repository. If the URL becomes unavailable, you may need to find an alternative source for NYC borough GeoJSON data.
+- The script assumes that the `collisions.csv` file is properly formatted and located in the `./data/` directory relative to where the script is run.
