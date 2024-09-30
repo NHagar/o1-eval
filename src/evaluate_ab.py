@@ -20,25 +20,29 @@ with open(prompts_path / "system.txt", "r") as f:
 
 con = duckdb.connect(database=":memory:")
 
-# check if test ID path exists
-if not Path("./data/sample_ids.csv").exists():
-    # load sample of upworthy data
-    df = con.execute("""WITH sampled_tests AS (
-        SELECT DISTINCT clickability_test_id FROM 'data/upworthy_processed.csv' USING SAMPLE 50
-        )
-        SELECT * FROM 'data/upworthy_processed.csv' WHERE clickability_test_id IN (SELECT clickability_test_id FROM sampled_tests)
-        """).fetchdf()
-    # for each test
-    test_ids = df["clickability_test_id"].unique()
 
-    pd.DataFrame(test_ids, columns=["test_id"]).to_csv(
-        "./data/sample_ids.csv", index=False
-    )
-else:
-    test_ids = pd.read_csv("./data/sample_ids.csv")["test_id"].tolist()
-    df = con.execute(
-        """SELECT * FROM 'data/upworthy_processed.csv' WHERE clickability_test_id IN (SELECT test_id FROM 'data/sample_ids.csv')"""
-    ).fetchdf()
+# check if test ID path exists
+def load_test_ids():
+    if not Path("./data/sample_ids.csv").exists():
+        # load sample of upworthy data
+        df = con.execute("""WITH sampled_tests AS (
+            SELECT DISTINCT clickability_test_id FROM 'data/upworthy_processed.csv' USING SAMPLE 50
+            )
+            SELECT * FROM 'data/upworthy_processed.csv' WHERE clickability_test_id IN (SELECT clickability_test_id FROM sampled_tests)
+            """).fetchdf()
+        # for each test
+        test_ids = df["clickability_test_id"].unique()
+
+        pd.DataFrame(test_ids, columns=["test_id"]).to_csv(
+            "./data/sample_ids.csv", index=False
+        )
+    else:
+        test_ids = pd.read_csv("./data/sample_ids.csv")["test_id"].tolist()
+        df = con.execute(
+            """SELECT * FROM 'data/upworthy_processed.csv' WHERE clickability_test_id IN (SELECT test_id FROM 'data/sample_ids.csv')"""
+        ).fetchdf()
+
+    return test_ids, df
 
 
 def process_model_response(response, winning_idx):
@@ -93,6 +97,7 @@ for model in models:
     results_cot = check_for_results(output_path / "cot_results.csv")
     results_reasoning = check_for_results(output_path / "reasoning_results.csv")
 
+    test_ids, df = load_test_ids()
     test_ids = [i for i in test_ids if i not in results_single.test_id.tolist()]
 
     print(f"Running evaluation for model: {model}")
