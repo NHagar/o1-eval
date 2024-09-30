@@ -10,7 +10,7 @@ df = con.execute("""
         SELECT
             clickability_test_id,
             COUNT(*) AS variant_count,
-            SUM(CAST(first_place AS INTEGER)) AS first_place_count
+            SUM(CAST(winner AS INTEGER)) AS winner_count
         FROM
             './data/upworthy.csv'
         GROUP BY
@@ -20,7 +20,7 @@ df = con.execute("""
     SELECT
         d.clickability_test_id,
         COALESCE(excerpt, '') || '\n' || COALESCE(headline, '') || '\n' || COALESCE(share_text, '') AS text_blob,
-        first_place
+        winner
     FROM
         './data/upworthy.csv' d
     JOIN
@@ -29,7 +29,7 @@ df = con.execute("""
         variants.clickability_test_id = d.clickability_test_id
     WHERE
         variants.variant_count > 1
-        AND variants.first_place_count = 1
+        AND variants.winner_count = 1
     ),
     unique_text_blob AS (
     SELECT

@@ -107,7 +107,7 @@ for model in models:
         variants = variants.sample(frac=1)
         variants.reset_index(drop=True, inplace=True)
         # store index of winning variant
-        winning_idx = variants[variants["first_place"]].index[0]
+        winning_idx = variants[variants["winner"]].index[0]
 
         append_chunk = ""
         for i, row in variants.iterrows():
@@ -119,8 +119,6 @@ for model in models:
 
         prompt_single_copy = prompt_single
         prompt_single_copy += append_chunk
-
-        print(prompt_single_copy)
 
         prompt_multi_copy = prompt_multi
         prompt_multi_copy = prompt_multi_copy.split("=====")
