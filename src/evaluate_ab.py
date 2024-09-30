@@ -38,7 +38,7 @@ else:
     test_ids = pd.read_csv("./data/sample_ids.csv")["test_id"].tolist()
     df = con.execute(
         """SELECT * FROM 'data/upworthy_processed.csv' WHERE clickability_test_id IN (SELECT test_id FROM 'data/sample_ids.csv')"""
-    )
+    ).fetchdf()
 
 
 def process_model_response(response, winning_idx):
@@ -70,7 +70,10 @@ def check_for_results(res_path):
     if not res_path.exists():
         return pd.DataFrame(columns=["test_id", "is_correct", "response", "winner"])
     else:
-        return pd.read_csv(res_path)
+        return pd.read_csv(
+            res_path,
+            names=["test_id", "is_correct", "response", "winner"],
+        )
 
 
 models = [
@@ -90,7 +93,7 @@ for model in models:
     results_cot = check_for_results(output_path / "cot_results.csv")
     results_reasoning = check_for_results(output_path / "reasoning_results.csv")
 
-    test_ids = [i for i in test_ids if i not in results_single.test_id]
+    test_ids = [i for i in test_ids if i not in results_single.test_id.tolist()]
 
     print(f"Running evaluation for model: {model}")
     for test_id in tqdm(test_ids):
@@ -125,46 +128,54 @@ for model in models:
 
         # write or append rows to corresponding CSVs
         pd.DataFrame(
-            {
-                "test_id": [test_id],
-                "is_correct": process_model_response(single, winning_idx),
-                "response": single,
-                "winner": winning_idx,
-            }
+            [
+                {
+                    "test_id": test_id,
+                    "is_correct": process_model_response(single, winning_idx),
+                    "response": single,
+                    "winner": winning_idx,
+                }
+            ]
         ).to_csv(
             output_path / "single_results.csv", mode="a", header=False, index=False
         )
 
         if model not in ["o1-mini", "o1-preview"]:
             pd.DataFrame(
-                {
-                    "test_id": [test_id],
-                    "is_correct": process_model_response(multi, winning_idx),
-                    "response": multi,
-                    "winner": winning_idx,
-                }
+                [
+                    {
+                        "test_id": test_id,
+                        "is_correct": process_model_response(multi, winning_idx),
+                        "response": multi,
+                        "winner": winning_idx,
+                    }
+                ]
             ).to_csv(
                 output_path / "multi_results.csv", mode="a", header=False, index=False
             )
 
             pd.DataFrame(
-                {
-                    "test_id": [test_id],
-                    "is_correct": process_model_response(cot, winning_idx),
-                    "response": cot,
-                    "winner": winning_idx,
-                }
+                [
+                    {
+                        "test_id": test_id,
+                        "is_correct": process_model_response(cot, winning_idx),
+                        "response": cot,
+                        "winner": winning_idx,
+                    }
+                ]
             ).to_csv(
                 output_path / "cot_results.csv", mode="a", header=False, index=False
             )
 
             pd.DataFrame(
-                {
-                    "test_id": [test_id],
-                    "is_correct": process_model_response(reasoning, winning_idx),
-                    "response": reasoning,
-                    "winner": winning_idx,
-                }
+                [
+                    {
+                        "test_id": test_id,
+                        "is_correct": process_model_response(reasoning, winning_idx),
+                        "response": reasoning,
+                        "winner": winning_idx,
+                    }
+                ]
             ).to_csv(
                 output_path / "reasoning_results.csv",
                 mode="a",
