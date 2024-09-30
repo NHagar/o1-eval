@@ -117,7 +117,10 @@ for model in models:
             """
             append_chunk += formatted
 
-        prompt_single += append_chunk
+        prompt_single_copy = prompt_single
+        prompt_single_copy += append_chunk
+
+        print(prompt_single_copy)
 
         prompt_multi_copy = prompt_multi
         prompt_multi_copy = prompt_multi_copy.split("=====")
@@ -128,7 +131,7 @@ for model in models:
             prompt_system = None
 
         single, multi, cot, reasoning = evaluate_model(
-            model, prompt_single, prompt_multi_copy, prompt_system
+            model, prompt_single_copy, prompt_multi_copy, prompt_system
         )
 
         # write or append rows to corresponding CSVs
